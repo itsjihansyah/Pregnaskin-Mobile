@@ -4,7 +4,7 @@ Pregnaskin-Mobile is a mobile application designed specifically for pregnant wom
 ## Technology Stack
 * Flutter – Used for mobile development, ensuring a smooth and responsive cross-platform experience.
 * Recommendation System – Implements context-based and content-based filtering to generate skincare product recommendations tailored to pregnant users.
-* Backend (Planned) – Future integration with Django (or an alternative framework) to connect Flutter with Python for efficient data handling and recommendation processing.
+* Backend (Planned) – Future integration with Django (or an alternative framework) to connect Flutter with the recommender system model using python.
 
 ## Current Progress
 Currently, the user interface (UI) is under development using flutter. Future updates will involve backend integration, refining the recommendation system, and optimizing the database structure to improve accuracy and efficiency.
