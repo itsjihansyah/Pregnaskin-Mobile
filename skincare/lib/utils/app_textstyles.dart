@@ -16,7 +16,7 @@ class AppTextStyle {
 
   static TextStyle h3 = const TextStyle(
     fontFamily: 'Inter',
-    fontSize: 12,
+    fontSize: 18,
     fontWeight: FontWeight.w600,
   );
 

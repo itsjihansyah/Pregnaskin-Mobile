@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:skincare/home_page.dart';
+import 'package:skincare/view/home_page.dart';
+import 'package:skincare/view/items_detail.dart';
+
+import 'models/product.dart';
 
 void main() {
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.white,
+      systemNavigationBarColor: Colors.white
+  ));
   runApp(const MyApp());
 }
 
@@ -26,6 +34,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       home: AppMainScreen(),
+      // home: ItemsDetail(product: products[1]),
     );
   }
 }
