@@ -3,14 +3,14 @@ import 'package:skincare/utils/app_textstyles.dart';
 
 import '../filter_home.dart';
 
-class CustomSearchBar extends StatefulWidget {
-  const CustomSearchBar({super.key});
+class FilterCountrySearch extends StatefulWidget {
+  const FilterCountrySearch({super.key});
 
   @override
-  State<CustomSearchBar> createState() => _CustomSearchBarState();
+  State<FilterCountrySearch> createState() => _FilterCountrySearchState();
 }
 
-class _CustomSearchBarState extends State<CustomSearchBar> {
+class _FilterCountrySearchState extends State<FilterCountrySearch> {
   final FocusNode _focusNode = FocusNode();
   bool _isFocused = false;
 
@@ -26,48 +26,22 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: TextField(
-        focusNode: _focusNode, // Assign the focus node
+    return TextField(
+        focusNode: _focusNode,
         style: AppTextStyle.withColor(
           AppTextStyle.bodyMedium,
           Colors.black,
         ),
         decoration: InputDecoration(
-          hintText: 'Search Brand or Product...',
+          hintText: 'Search country...',
           hintStyle: AppTextStyle.withColor(
-            AppTextStyle.bodyMedium,
+            AppTextStyle.bodySmall,
             const Color(0xFFADB0BF),
           ),
           prefixIcon: Icon(
             Icons.search,
             color: _isFocused ? Colors.black : const Color(0xFF979AAC),
-          ),
-          suffixIcon: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            child: IconButton(
-              icon: Icon(
-                Icons.tune,
-                color: _isFocused
-                    ? Theme.of(context).colorScheme.onSurface
-                    : null,
-              ),
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  useSafeArea: true,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                  ),
-                  builder: (BuildContext context) {
-                    return const FilterHome();
-                  },
-                );
-              },
-            ),
-          ),
+          size: 24,),
           filled: true,
           fillColor: const Color(0xFFFAFAFA),
           border: OutlineInputBorder(
@@ -84,7 +58,6 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
           ),
           contentPadding: const EdgeInsets.symmetric(vertical: 16),
         ),
-      ),
     );
   }
 

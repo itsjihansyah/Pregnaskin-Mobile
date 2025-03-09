@@ -23,6 +23,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        canvasColor: Colors.white,
+        bottomSheetTheme: const BottomSheetThemeData(
+          backgroundColor: Colors.white,
+        ),
         chipTheme: ChipThemeData(
           showCheckmark: false, // ✅ Removes checkmark globally
           selectedColor: Colors.black,

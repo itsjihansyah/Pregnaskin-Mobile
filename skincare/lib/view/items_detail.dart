@@ -9,6 +9,8 @@ import 'package:iconify_flutter/icons/material_symbols.dart';
 import 'package:iconify_flutter/icons/mdi.dart';
 import 'package:iconify_flutter/icons/ph.dart';
 
+import 'alternative_page.dart';
+
 
 
 class ItemsDetail extends StatefulWidget {
@@ -41,7 +43,7 @@ Widget _buildFeatureContainer(String icon, String title, String subtitle) {
 class _ItemsDetailState extends State<ItemsDetail>
     with TickerProviderStateMixin {
   String unsafe_reason = 'Titanium Dioxide';
-  double dynamicHeight = 300; // Default height
+  double dynamicHeight = 300;
 
   @override
   Widget build(BuildContext context) {
@@ -278,6 +280,49 @@ class _ItemsDetailState extends State<ItemsDetail>
           ),
         ],
       ),
+      bottomNavigationBar: _buildBottomActions(),
     );
+  }
+
+  Widget _buildBottomActions() {
+    if (widget.product.safe.toLowerCase() == 'unsafe') {
+      return Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border(
+            top: BorderSide(color: Colors.grey.shade300, width: 1),
+          ),
+        ),
+        child: SizedBox(
+          width: 230, // Adjust width as needed
+          child: ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AlternativePage(product: widget.product),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Text(
+              "Show Alternatives",
+              style: AppTextStyle.withWeight(
+                  AppTextStyle.bodyMedium, FontWeight.w600),
+            ),
+          ),
+        ),
+      );
+    } else {
+      return SizedBox();
+    }
   }
 }
