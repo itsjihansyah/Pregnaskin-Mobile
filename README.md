@@ -12,5 +12,7 @@ Currently, the application is under development using flutter. The database and 
 ![Image](https://github.com/user-attachments/assets/ed3c3cf1-eb4f-4450-bd30-88f1d50ce160)
 
 ## Next Plan
+* Add login and create account pages.
 * Add a feature to compare alternative products with the previously selected product.
 * Implement filtering functionality on the home and alternative product pages.
+* Develop "add to favourite" function.
