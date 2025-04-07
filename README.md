@@ -1,15 +1,16 @@
 # Pregnaskin-Mobile (On going)
-Pregnaskin-Mobile is a mobile application designed specifically for pregnant women to receive personalized skincare product recommendations. The app aims to help expecting mothers easily determine safe skincare options without extensive research or medical consultation.
+Pregnaskin-Mobile is a mobile application designed specifically for pregnant women to receive personalized skincare product recommendations. The app aims to help expecting mothers easily determine safe skincare options without needing to conduct extensive research or seek medical consultation.
 
 ## Technology Stack
-* Flutter – Used for mobile development, ensuring a smooth and responsive cross-platform experience.
-* Recommendation System – Implements context-based and content-based filtering to generate skincare product recommendations tailored to pregnant users.
-* Backend (Planned) – Future integration with Django (or an alternative framework) to connect Flutter with the recommender system model using python.
+* Flutter: Used for mobile development, ensuring a smooth and responsive cross-platform experience.
+* Recommendation System: Implements both context-based and content-based filtering to generate personalized skincare product recommendations for pregnant users.
+* Backend: Integrated with FastAPI (or an alternative framework) to connect the Flutter front-end with the recommender system model written in Python.
 
 ## Current Progress
-Currently, the user interface (UI) is under development using flutter. Future updates will involve backend integration, refining the recommendation system, and optimizing the database structure to improve accuracy and efficiency.
+Currently, the application is under development using flutter. The database and API have been developed using the mentioned tehcnology
 
 ![Image](https://github.com/user-attachments/assets/ed3c3cf1-eb4f-4450-bd30-88f1d50ce160)
 
-Stay tuned for updates as we continue to enhance Pregnaskin-Mobile to provide a seamless and reliable skincare recommendation system for pregnant women!
-
+## Next Plan
+* Add a feature to compare alternative products with the previously selected product.
+* Implement filtering functionality on the home and alternative product pages.
