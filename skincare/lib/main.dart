@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skincare/view/home_page.dart';
-import 'package:skincare/view/items_detail.dart';
 
 import 'models/product.dart';
 
 void main() {
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      statusBarColor: Colors.white,
-      systemNavigationBarColor: Colors.white
+    statusBarColor: Colors.white,
+    systemNavigationBarColor: Colors.white,
+    systemNavigationBarIconBrightness: Brightness.dark,
+    statusBarIconBrightness: Brightness.dark,
   ));
   runApp(const MyApp());
 }
@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
           backgroundColor: Colors.white,
         ),
         chipTheme: ChipThemeData(
-          showCheckmark: false, // ✅ Removes checkmark globally
+          showCheckmark: false,
           selectedColor: Colors.black,
           backgroundColor: const Color(0xFFFAFAFA),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -54,10 +54,10 @@ class MyApp extends StatelessWidget {
 //   }
 // }
 
-  ThemeData _buildTheme(brightness) {
-    var baseTheme = ThemeData(brightness: brightness);
+ThemeData _buildTheme(brightness) {
+  var baseTheme = ThemeData(brightness: brightness);
 
-    return baseTheme.copyWith(
-      textTheme: GoogleFonts.interTextTheme(baseTheme.textTheme),
-    );
-  }
+  return baseTheme.copyWith(
+    textTheme: GoogleFonts.interTextTheme(baseTheme.textTheme),
+  );
+}

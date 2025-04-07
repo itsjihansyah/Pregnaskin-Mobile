@@ -4,7 +4,9 @@ import 'package:skincare/utils/app_textstyles.dart';
 import '../filter_home.dart';
 
 class CustomSearchBar extends StatefulWidget {
-  const CustomSearchBar({super.key});
+  final Function(String)? onSearch;
+
+  const CustomSearchBar({Key? key, this.onSearch}) : super(key: key);
 
   @override
   State<CustomSearchBar> createState() => _CustomSearchBarState();
@@ -29,7 +31,8 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: TextField(
-        focusNode: _focusNode, // Assign the focus node
+        onSubmitted: widget.onSearch,
+        focusNode: _focusNode,
         style: AppTextStyle.withColor(
           AppTextStyle.bodyMedium,
           Colors.black,
@@ -49,9 +52,8 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
             child: IconButton(
               icon: Icon(
                 Icons.tune,
-                color: _isFocused
-                    ? Theme.of(context).colorScheme.onSurface
-                    : null,
+                color:
+                    _isFocused ? Theme.of(context).colorScheme.onSurface : null,
               ),
               onPressed: () {
                 showModalBottomSheet(
@@ -59,7 +61,8 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                   isScrollControlled: true,
                   useSafeArea: true,
                   shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(16)),
                   ),
                   builder: (BuildContext context) {
                     return const FilterHome();
