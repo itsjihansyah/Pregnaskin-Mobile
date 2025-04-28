@@ -13,6 +13,5 @@ Currently, the application is under development using flutter. The database and 
 
 ## Next Plan
 * Add login and create account pages.
-* Add a feature to compare alternative products with the previously selected product.
 * Implement filtering functionality on the home and alternative product pages.
 * Develop "add to favourite" function.
