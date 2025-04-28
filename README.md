@@ -9,7 +9,7 @@ Pregnaskin-Mobile is a mobile application designed specifically for pregnant wom
 ## Current Progress
 Currently, the application is under development using flutter. The database and API have been developed using the mentioned tehcnology
 
-![Image](https://github.com/user-attachments/assets/88fc1a5c-7d88-44a0-af97-ae00382ff240)
+![Image](https://github.com/user-attachments/assets/420f94cd-c828-49c5-b5da-3894b20e124c)
 
 ## Next Plan
 * Add login and create account pages.
