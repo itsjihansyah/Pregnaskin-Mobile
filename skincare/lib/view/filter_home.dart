@@ -1,21 +1,65 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
-import 'package:skincare/utils/app_textstyles.dart';
 import 'package:iconify_flutter/icons/material_symbols.dart';
 import 'package:skincare/models/filter.dart';
-
-import 'package:skincare/view/widget/filter_chips.dart';
+import 'package:skincare/models/filter_selection.dart';
+import 'package:skincare/services/api_service.dart';
+import 'package:skincare/utils/app_textstyles.dart';
 
 class FilterHome extends StatefulWidget {
-  const FilterHome({super.key});
+  final FilterSelection? initialFilters;
+
+  const FilterHome({super.key, this.initialFilters});
 
   @override
   State<FilterHome> createState() => _FilterHomeState();
 }
 
 class _FilterHomeState extends State<FilterHome> {
-  RangeValues _currentRangeValues = const RangeValues(0, 5);
+  late RangeValues _currentRangeValues;
+  final Set<String> _selectedCategories = {};
+  final Set<String> _selectedSkinTypes = {};
+  final Set<String> _selectedConditions = {};
+  final Set<String> _selectedSafety = {};
+  final Set<String> _selectedCountries = {};
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.initialFilters != null) {
+      _currentRangeValues = widget.initialFilters!.ratingRange;
+      _selectedCategories.addAll(widget.initialFilters!.categories);
+      _selectedSkinTypes.addAll(widget.initialFilters!.skinTypes);
+      _selectedConditions.addAll(widget.initialFilters!.conditions);
+      _selectedSafety.addAll(widget.initialFilters!.safetyOptions);
+      _selectedCountries.addAll(widget.initialFilters!.countries);
+    } else {
+      _currentRangeValues = const RangeValues(0, 5);
+    }
+  }
+
+  FilterSelection _getCurrentFilters() {
+    return FilterSelection(
+      ratingRange: _currentRangeValues,
+      categories: _selectedCategories.toList(),
+      skinTypes: _selectedSkinTypes.toList(),
+      conditions: _selectedConditions.toList(),
+      safetyOptions: _selectedSafety.toList(),
+      countries: _selectedCountries.toList(),
+    );
+  }
+
+  void _resetFilters() {
+    setState(() {
+      _currentRangeValues = const RangeValues(0, 5);
+      _selectedCategories.clear();
+      _selectedSkinTypes.clear();
+      _selectedConditions.clear();
+      _selectedSafety.clear();
+      _selectedCountries.clear();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,94 +67,37 @@ class _FilterHomeState extends State<FilterHome> {
       backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Container(
-          margin: const EdgeInsets.only(top: 20),
-          padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
           ),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              AppBar(
-                scrolledUnderElevation: 0.0,
-                automaticallyImplyLeading: false,
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
-                elevation: 0,
-                actions: [
-                  IconButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    icon: const Iconify(
-                      MaterialSymbols.close,
-                      size: 28,
-                    ),
-                  ),
-                ],
-                centerTitle: true,
-                title: Text(
-                  "Filter",
-                  style: AppTextStyle.withWeight(AppTextStyle.h3, FontWeight.bold),
-                ),
-              ),
-
+              _buildHeader(),
               Expanded(
                 child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Ratings Range", style: AppTextStyle.withWeight(AppTextStyle.bodyLarge, FontWeight.w600)),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              _currentRangeValues.start.round().toString(),
-                              style: AppTextStyle.withWeight(AppTextStyle.bodyLarge, FontWeight.bold),
-                            ),
-                            Expanded(
-                              child: RangeSlider(
-                                values: _currentRangeValues,
-                                min: 0.0,
-                                max: 5.0,
-                                divisions: 5,
-                                labels: RangeLabels(
-                                  _currentRangeValues.start.round().toString(),
-                                  _currentRangeValues.end.round().toString(),
-                                ),
-                                activeColor: Colors.black,
-                                inactiveColor: const Color(0xFFFAFAFA),
-                                onChanged: (RangeValues values) {
-                                  setState(() {
-                                    _currentRangeValues = RangeValues(
-                                      values.start.roundToDouble(),
-                                      values.end.roundToDouble(),
-                                    );
-                                  });
-                                },
-                              ),
-                            ),
-                            Text(
-                              _currentRangeValues.end.round().toString(),
-                              style: AppTextStyle.withWeight(AppTextStyle.bodyLarge, FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                        _buildSection("Category", const FilterChips(filter: categories)),
-                        _buildSection("Skin Type", const FilterChips(filter: skinType)),
-                        _buildSection("Condition", const FilterChips(filter: condition)),
-                        _buildSection("Safety", const FilterChips(filter: safety)),
-                        const SizedBox(height: 8),
-                        _buildCountrySelection(),
-                        const SizedBox(height: 24),
-                      ],
-                    ),
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildRatingFilter(),
+                      _buildDivider(),
+                      _buildCategoryFilter(),
+                      _buildDivider(),
+                      _buildSkinTypeFilter(),
+                      _buildDivider(),
+                      _buildConditionFilter(),
+                      _buildDivider(),
+                      _buildSafetyFilter(),
+                      _buildDivider(),
+                      _buildCountryFilter(),
+                      SizedBox(height: 24)
+                    ],
                   ),
                 ),
               ),
-              _buildBottomActions(),
+              _buildFooter(),
             ],
           ),
         ),
@@ -118,27 +105,296 @@ class _FilterHomeState extends State<FilterHome> {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 24, bottom: 8),
-      child: Text(
-        title,
-        style: AppTextStyle.withWeight(AppTextStyle.bodyLarge, FontWeight.w600),
+  Widget _buildHeader() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: const Color(0xFFFAFAFA)),
+        ),
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Align(
+            alignment: Alignment.centerRight,
+            child: IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: const Iconify(
+                MaterialSymbols.close,
+                size: 24,
+              ),
+              padding: EdgeInsets.zero,
+            ),
+          ),
+          Text(
+            "Filter",
+            style: AppTextStyle.withWeight(AppTextStyle.h3, FontWeight.bold),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildSection(String title, Widget child) {
+  Widget _buildRatingFilter() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle(title),
-        child,
+        Padding(
+          padding: const EdgeInsets.only(top: 8, bottom: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Rating",
+                style: AppTextStyle.withWeight(
+                    AppTextStyle.bodyLarge, FontWeight.w600),
+              ),
+              Text(
+                "${_currentRangeValues.start.round()} - ${_currentRangeValues.end.round()}",
+                style: AppTextStyle.bodyMedium,
+              ),
+            ],
+          ),
+        ),
+        RangeSlider(
+          min: 0,
+          max: 5,
+          divisions: 5,
+          values: _currentRangeValues,
+          activeColor: Colors.black,
+          inactiveColor: const Color(0xFFFAFAFA),
+          onChanged: (RangeValues values) {
+            setState(() {
+              _currentRangeValues = RangeValues(
+                values.start.roundToDouble(),
+                values.end.roundToDouble(),
+              );
+            });
+          },
+        ),
       ],
     );
   }
 
-  Widget _buildCountrySelection() {
+  Widget _buildCategoryFilter() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Text(
+            "Category",
+            style: AppTextStyle.withWeight(
+                AppTextStyle.bodyLarge, FontWeight.w600),
+          ),
+        ),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: categories.map((category) {
+            final isSelected = _selectedCategories.contains(category);
+            return FilterChip(
+              label: Text(
+                category,
+                style: AppTextStyle.withColor(
+                  isSelected
+                      ? AppTextStyle.withWeight(
+                          AppTextStyle.bodySmall, FontWeight.w600)
+                      : AppTextStyle.bodySmall,
+                  isSelected ? Colors.white : Colors.black,
+                ),
+              ),
+              selected: isSelected,
+              showCheckmark: false,
+              backgroundColor: const Color(0xFFFAFAFA),
+              shape: StadiumBorder(side: BorderSide(color: Colors.transparent)),
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              onSelected: (selected) {
+                setState(() {
+                  if (selected) {
+                    _selectedCategories.add(category);
+                  } else {
+                    _selectedCategories.remove(category);
+                  }
+                });
+              },
+            );
+          }).toList(),
+        ),
+        SizedBox(
+          height: 8,
+        )
+      ],
+    );
+  }
+
+  Widget _buildSkinTypeFilter() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Text(
+            "Skin Type",
+            style: AppTextStyle.withWeight(
+                AppTextStyle.bodyLarge, FontWeight.w600),
+          ),
+        ),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: skinType.map((type) {
+            final isSelected = _selectedSkinTypes.contains(type);
+            return FilterChip(
+              label: Text(
+                type,
+                style: AppTextStyle.withColor(
+                  isSelected
+                      ? AppTextStyle.withWeight(
+                          AppTextStyle.bodySmall, FontWeight.w600)
+                      : AppTextStyle.bodySmall,
+                  isSelected ? Colors.white : Colors.black,
+                ),
+              ),
+              selected: isSelected,
+              showCheckmark: false,
+              backgroundColor: const Color(0xFFFAFAFA),
+              selectedColor: Colors.black,
+              shape: StadiumBorder(side: BorderSide(color: Colors.transparent)),
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              onSelected: (selected) {
+                setState(() {
+                  if (selected) {
+                    _selectedSkinTypes.add(type);
+                  } else {
+                    _selectedSkinTypes.remove(type);
+                  }
+                });
+              },
+            );
+          }).toList(),
+        ),
+        SizedBox(
+          height: 8,
+        )
+      ],
+    );
+  }
+
+  Widget _buildConditionFilter() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Text(
+            "Condition",
+            style: AppTextStyle.withWeight(
+                AppTextStyle.bodyLarge, FontWeight.w600),
+          ),
+        ),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: condition.map((item) {
+            final isSelected = _selectedConditions.contains(item);
+            return FilterChip(
+              label: Text(
+                item,
+                style: AppTextStyle.withColor(
+                  isSelected
+                      ? AppTextStyle.withWeight(
+                          AppTextStyle.bodySmall, FontWeight.w600)
+                      : AppTextStyle.bodySmall,
+                  isSelected ? Colors.white : Colors.black,
+                ),
+              ),
+              selected: isSelected,
+              showCheckmark: false,
+              backgroundColor: const Color(0xFFFAFAFA),
+              selectedColor: Colors.black,
+              shape: StadiumBorder(side: BorderSide(color: Colors.transparent)),
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              onSelected: (selected) {
+                setState(() {
+                  if (selected) {
+                    _selectedConditions.add(item);
+                  } else {
+                    _selectedConditions.remove(item);
+                  }
+                });
+              },
+            );
+          }).toList(),
+        ),
+        SizedBox(
+          height: 8,
+        )
+      ],
+    );
+  }
+
+  Widget _buildSafetyFilter() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Text(
+            "Safety",
+            style: AppTextStyle.withWeight(
+                AppTextStyle.bodyLarge, FontWeight.w600),
+          ),
+        ),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: safety.map((item) {
+            final isSelected = _selectedSafety.contains(item);
+            return FilterChip(
+              label: Text(
+                item,
+                style: AppTextStyle.withColor(
+                  isSelected
+                      ? AppTextStyle.withWeight(
+                          AppTextStyle.bodySmall, FontWeight.w600)
+                      : AppTextStyle.bodySmall,
+                  isSelected ? Colors.white : Colors.black,
+                ),
+              ),
+              selected: isSelected,
+              showCheckmark: false,
+              backgroundColor: const Color(0xFFFAFAFA),
+              selectedColor: Colors.black,
+              shape: StadiumBorder(side: BorderSide(color: Colors.transparent)),
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              onSelected: (selected) {
+                setState(() {
+                  if (selected) {
+                    _selectedSafety.add(item);
+                  } else {
+                    _selectedSafety.remove(item);
+                  }
+                });
+              },
+            );
+          }).toList(),
+        ),
+        SizedBox(
+          height: 8,
+        )
+      ],
+    );
+  }
+
+  Widget _buildCountryFilter() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -147,51 +403,107 @@ class _FilterHomeState extends State<FilterHome> {
           children: [
             Text(
               "Country",
-              style: AppTextStyle.withWeight(AppTextStyle.bodyLarge, FontWeight.w600),
+              style: AppTextStyle.withWeight(
+                  AppTextStyle.bodyLarge, FontWeight.w600),
             ),
             TextButton(
               onPressed: () {},
               style: TextButton.styleFrom(
-                padding: EdgeInsets.only(right: 0),
+                padding: EdgeInsets.zero,
                 minimumSize: Size(0, 0),
               ),
-              child: Text("See All"),
+              child: Text(
+                "See All",
+                style:
+                    AppTextStyle.withColor(AppTextStyle.bodySmall, Colors.grey),
+              ),
             ),
           ],
         ),
-        const FilterChips(filter: topCountries),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: topCountries.map((country) {
+            final isSelected = _selectedCountries.contains(country);
+            return FilterChip(
+              label: Text(
+                country,
+                style: AppTextStyle.withColor(
+                  isSelected
+                      ? AppTextStyle.withWeight(
+                          AppTextStyle.bodySmall, FontWeight.w600)
+                      : AppTextStyle.bodySmall,
+                  isSelected ? Colors.white : Colors.black,
+                ),
+              ),
+              selected: isSelected,
+              showCheckmark: false,
+              backgroundColor: const Color(0xFFFAFAFA),
+              selectedColor: Colors.black,
+              shape: StadiumBorder(side: BorderSide(color: Colors.transparent)),
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              onSelected: (selected) {
+                setState(() {
+                  if (selected) {
+                    _selectedCountries.add(country);
+                  } else {
+                    _selectedCountries.remove(country);
+                  }
+                });
+              },
+            );
+          }).toList(),
+        ),
+        SizedBox(
+          height: 8,
+        )
       ],
     );
   }
 
-  Widget _buildBottomActions() {
+  Widget _buildDivider() {
+    return Divider(
+      color: const Color(0xFFFAFAFA),
+      thickness: 1,
+      height: 24,
+    );
+  }
+
+  Widget _buildFooter() {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(
-          top: BorderSide(color: Colors.grey.shade300, width: 1),
-        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade200,
+            blurRadius: 8,
+            offset: Offset(0, -4),
+          ),
+        ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Reset Button
-          TextButton(
-            onPressed: () {
-              // Reset action
-            },
-            child: Text(
-              "Reset",
-              style: AppTextStyle.withColor(AppTextStyle.bodyMedium, Colors.black),
+          Expanded(
+            child: TextButton(
+              onPressed: _resetFilters,
+              style: TextButton.styleFrom(
+                alignment: Alignment.centerLeft,
+              ),
+              child: Text(
+                "Reset",
+                style: AppTextStyle.withColor(
+                    AppTextStyle.bodyMedium, Colors.grey.shade700),
+              ),
             ),
           ),
-
-          SizedBox(
-            width: 230, // Adjust width as needed
+          SizedBox(width: 12),
+          Expanded(
             child: ElevatedButton(
               onPressed: () {
-                // Apply action
+                final filters = _getCurrentFilters();
+                Navigator.pop(context, filters);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.black,
@@ -202,8 +514,8 @@ class _FilterHomeState extends State<FilterHome> {
                 ),
               ),
               child: Text(
-                "Apply Filter",
-                style: AppTextStyle.withWeight(AppTextStyle.bodyMedium, FontWeight.w600),
+                "Apply",
+                style: AppTextStyle.bodyMedium,
               ),
             ),
           ),

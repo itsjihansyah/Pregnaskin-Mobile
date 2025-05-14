@@ -1,21 +1,63 @@
 import 'package:flutter/material.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/material_symbols.dart';
+import 'package:skincare/models/filter_selection_alternative.dart';
 import 'package:skincare/models/product.dart';
-import 'package:skincare/view/widget/alternative_grid.dart'; // this one!
+import 'package:skincare/view/alternative_filter.dart';
+import 'package:skincare/view/widget/alternative_chips.dart';
+import 'package:skincare/view/widget/alternative_grid.dart';
 
 import '../utils/app_textstyles.dart';
 
 class AlternativePage extends StatefulWidget {
   final Product product;
+  final FilterSelectionAlternative? initialFilters; // Added missing parameter
 
-  const AlternativePage({super.key, required this.product});
+  const AlternativePage({
+    super.key,
+    required this.product,
+    this.initialFilters, // Added parameter declaration
+  });
 
   @override
   State<AlternativePage> createState() => _AlternativePageState();
 }
 
 class _AlternativePageState extends State<AlternativePage> {
+  String selectedCategory = 'Match Features';
+  FilterSelectionAlternative? appliedFilters;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize appliedFilters with initialFilters if provided
+    appliedFilters = widget.initialFilters;
+  }
+
+  void onCategorySelected(String category) {
+    setState(() {
+      selectedCategory = category;
+    });
+  }
+
+  void _openFilterScreen() async {
+    final result = await showModalBottomSheet<FilterSelectionAlternative>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => SizedBox(
+        height: MediaQuery.of(context).size.height * 0.9,
+        child: FilterAlternative(initialFilters: appliedFilters),
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        appliedFilters = result;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,7 +90,32 @@ class _AlternativePageState extends State<AlternativePage> {
         ],
       ),
       body: SafeArea(
-        child: AlternativeGrid(productId: widget.product.id!),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8, right: 4),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: AlternativeChips(
+                      categories: ['Match Features', 'Match Ingredients'],
+                      selectedCategory: selectedCategory,
+                      onCategorySelected: onCategorySelected,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: AlternativeGrid(
+                productId: widget.product.id,
+                originalProduct: widget.product,
+                filters: appliedFilters,
+                category: selectedCategory,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

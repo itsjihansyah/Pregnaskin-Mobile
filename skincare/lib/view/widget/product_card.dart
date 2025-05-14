@@ -138,7 +138,7 @@ class ProductCard extends StatelessWidget {
   }
 }
 
-// Fetch API function
+// Fetch API
 Future<List<Product>> fetchProducts() async {
   final response = await http.get(Uri.parse('http://10.0.2.2:8000/products'));
 

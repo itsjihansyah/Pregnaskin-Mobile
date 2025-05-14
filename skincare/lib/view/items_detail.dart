@@ -5,15 +5,17 @@ import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/material_symbols.dart';
 import 'package:iconify_flutter/icons/mdi.dart';
 import 'package:iconify_flutter/icons/ph.dart';
+import 'package:skincare/view/alternative_filter.dart';
 import '../../models/product.dart';
+import '../../models/filter_selection_alternative.dart';
 import '../utils/app_textstyles.dart';
 import 'alternative_page.dart';
+import 'alternative_filter.dart';
 import 'package:skincare/view/widget/feature_chips.dart';
 
 class ItemsDetail extends StatefulWidget {
   final int productId;
   final Product product;
-  int _currentTabIndex = 0;
 
   ItemsDetail({Key? key, required this.productId, required this.product})
       : super(key: key);
@@ -26,6 +28,7 @@ class _ItemsDetailState extends State<ItemsDetail>
     with TickerProviderStateMixin {
   late TabController _tabController;
   Future<Product?>? _productFuture;
+  FilterSelectionAlternative? _selectedFilters;
 
   int _currentTabIndex = 0;
 
@@ -54,6 +57,53 @@ class _ItemsDetailState extends State<ItemsDetail>
     } catch (e) {
       throw Exception('Error fetching data: ${e.toString()}');
     }
+  }
+
+  // Open filter modal and get selected filters
+  // Enhanced filter modal with better user feedback
+  Future<void> _openFilterModal() async {
+    final result = await showModalBottomSheet<FilterSelectionAlternative>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.9,
+        child: FilterAlternative(
+          initialFilters: _selectedFilters,
+        ),
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        _selectedFilters = result;
+      });
+
+      // // Show a snackbar confirming filters were applied (optional)
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(
+      //     content: Text(
+      //       'Filters applied',
+      //       style: AppTextStyle.withColor(AppTextStyle.bodySmall, Colors.white),
+      //     ),
+      //     duration: Duration(seconds: 2),
+      //     behavior: SnackBarBehavior.floating,
+      //   ),
+      // );
+    }
+  }
+
+  // Navigate to alternatives page with filter
+  void _navigateToAlternatives() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AlternativePage(
+          product: widget.product,
+          initialFilters: _selectedFilters,
+        ),
+      ),
+    );
   }
 
   @override
@@ -92,7 +142,11 @@ class _ItemsDetailState extends State<ItemsDetail>
   }
 
   Widget _buildLoadingScreen() {
-    return Center(child: CircularProgressIndicator());
+    return Center(
+        child: CircularProgressIndicator(
+      strokeWidth: 4,
+      color: Colors.black,
+    ));
   }
 
   Widget _buildErrorScreen(String errorMessage) {
@@ -134,6 +188,7 @@ class _ItemsDetailState extends State<ItemsDetail>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // safety chip
           Chip(
             label: Text(
               product.safe ?? "Unknown",
@@ -147,19 +202,42 @@ class _ItemsDetailState extends State<ItemsDetail>
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           ),
           SizedBox(height: 4),
-          Text(
-            product.name,
-            style: AppTextStyle.withWeight(AppTextStyle.h2, FontWeight.w600),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+
+          // name and rating
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  product.name,
+                  style:
+                      AppTextStyle.withWeight(AppTextStyle.h2, FontWeight.w600),
+                ),
+              ),
+              SizedBox(width: 8),
+              Row(
+                children: [
+                  Icon(Icons.star, color: Color(0xFFF3BB2D), size: 26),
+                  SizedBox(width: 4),
+                  Text(
+                    product.rating?.toStringAsFixed(1) ?? '0.0',
+                    style: AppTextStyle.withWeight(
+                        AppTextStyle.bodyLarge, FontWeight.w600),
+                  ),
+                ],
+              ),
+            ],
           ),
           SizedBox(height: 4),
+
+          // brand
           Text(
             product.brand,
             style: AppTextStyle.withColor(
                 AppTextStyle.bodyLarge, Color(0xFF979AAC)),
           ),
           SizedBox(height: 8),
+
+          // show the warning for unsafe products
           if (product.safe?.toLowerCase() == 'unsafe')
             _buildUnsafeWarning(product),
         ],
@@ -228,14 +306,18 @@ class _ItemsDetailState extends State<ItemsDetail>
   // Tab content
   Widget _buildTabContent(Product product) {
     final List<Widget> tabContents = [
-      // Overview Tab Content
+      // Overview
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Product overview in desc
-          Text(product.good_for ?? "No information available"),
-
-          SizedBox(height: 24),
+          if (product.good_for != null && product.good_for!.isNotEmpty) ...[
+            Padding(
+              padding: EdgeInsets.only(right: 24),
+              child: Text(product.good_for!),
+            ),
+            SizedBox(height: 24),
+          ],
 
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -245,37 +327,52 @@ class _ItemsDetailState extends State<ItemsDetail>
                 _buildFeatureContainer(
                     Mdi.earth, product.country ?? "Unknown", "Product"),
                 SizedBox(width: 12),
-                _buildFeatureContainer(
-                    MaterialSymbols.cool_to_dry_outline, "Dry", "Skin"),
-                SizedBox(width: 12),
-                _buildFeatureContainer(Ph.drop_half_bottom, "Oily", "Skin"),
-                SizedBox(width: 12),
-                _buildFeatureContainer(Ph.egg_crack, "Sensitive", "Skin"),
+                if (product.dry_skin == true) ...[
+                  _buildFeatureContainer(
+                      MaterialSymbols.cool_to_dry_outline, "Dry", "Skin"),
+                  SizedBox(width: 12),
+                ],
+                if (product.oily_skin == true) ...[
+                  _buildFeatureContainer(Ph.drop_half_bottom, "Oily", "Skin"),
+                  SizedBox(width: 12),
+                ],
+                if (product.sensitive_skin == true) ...[
+                  _buildFeatureContainer(Ph.egg_crack, "Sensitive", "Skin"),
+                  SizedBox(width: 12),
+                ],
               ],
             ),
           ),
         ],
       ),
 
-      // Features Tab Content
+      // Features
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Benefits",
+          if (product.benefits != null && product.benefits!.isNotEmpty) ...[
+            Text(
+              "Benefits",
               style: AppTextStyle.withWeight(
-                  AppTextStyle.bodyMedium, FontWeight.bold)),
-          SizedBox(height: 8),
-          FeatureChips(features: product.benefits),
-          SizedBox(height: 8),
-          Text("Concern",
+                  AppTextStyle.bodyMedium, FontWeight.bold),
+            ),
+            SizedBox(height: 8),
+            FeatureChips(features: product.benefits!),
+            SizedBox(height: 8),
+          ],
+          if (product.concern != null && product.concern!.isNotEmpty) ...[
+            Text(
+              "Concern",
               style: AppTextStyle.withWeight(
-                  AppTextStyle.bodyMedium, FontWeight.bold)),
-          SizedBox(height: 8),
-          FeatureChips(features: product.concern),
+                  AppTextStyle.bodyMedium, FontWeight.bold),
+            ),
+            SizedBox(height: 8),
+            FeatureChips(features: product.concern!),
+          ],
         ],
       ),
 
-      // Ingredients Tab Content
+      // Ingredients
       Padding(
         padding: EdgeInsets.only(right: 24),
         child: Text(product.ingredients ?? "No ingredients listed"),
@@ -317,42 +414,150 @@ class _ItemsDetailState extends State<ItemsDetail>
     );
   }
 
-  /// Bottom nav (the alternative btn)
+  /// Bottom nav (alternatives section with filter button)
+  // Revised bottom navigation that combines filtering with alternatives navigation
   Widget _buildBottomNavigation(Product product) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(
-          top: BorderSide(color: Colors.grey.shade300, width: 1),
+    if (product.safe?.toLowerCase() == 'unsafe') {
+      return Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border(
+            top: BorderSide(color: Colors.grey.shade300, width: 1),
+          ),
         ),
-      ),
-      child: SizedBox(
-        width: MediaQuery.of(context).size.width - 0.5,
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => AlternativePage(product: widget.product),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Filter indicator with clear option
+            if (_selectedFilters != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Row(
+                  children: [
+                    // Icon(Icons.filter_list, size: 16, color: Colors.grey[600]),
+                    // SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        "Filters applied: ${_getFilterSummary(_selectedFilters!)}",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedFilters = null;
+                        });
+                      },
+                      child: Text(
+                        "Clear",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.blue,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            );
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.black,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+
+            // Action buttons
+            Row(
+              children: [
+                // Show alternatives button
+                Expanded(
+                  flex: 2,
+                  child: ElevatedButton(
+                    onPressed: _navigateToAlternatives,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      _selectedFilters != null
+                          ? "Show Filtered Alternatives"
+                          : "Show Alternatives",
+                      style: AppTextStyle.withWeight(
+                          AppTextStyle.bodyMedium, FontWeight.w600),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 12),
+                // Filter button
+                Expanded(
+                  flex: 1,
+                  child: OutlinedButton(
+                    onPressed: _openFilterModal,
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: Colors.black),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.filter_list,
+                          size: 20,
+                          color: Colors.black,
+                        ),
+                        SizedBox(width: 4),
+                        Text(
+                          "Filter",
+                          style: AppTextStyle.withWeight(
+                              AppTextStyle.withColor(
+                                  AppTextStyle.bodyMedium, Colors.black),
+                              FontWeight.w600),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-          child: Text(
-            "Show Alternatives",
-            style: AppTextStyle.withWeight(
-                AppTextStyle.bodyMedium, FontWeight.w600),
-          ),
+          ],
         ),
-      ),
-    );
+      );
+    } else {
+      return SizedBox.shrink();
+    }
+  }
+
+  String _getFilterSummary(FilterSelectionAlternative filters) {
+    List<String> summary = [];
+
+    // Rating range
+    if (filters.ratingRange.start > 0 || filters.ratingRange.end < 5) {
+      summary.add(
+          "Rating ${filters.ratingRange.start.toInt()}-${filters.ratingRange.end.toInt()}");
+    }
+
+    // Skin types
+    if (filters.skinTypes.isNotEmpty) {
+      summary.add("${filters.skinTypes.length} skin types");
+    }
+
+    // Conditions
+    if (filters.conditions.isNotEmpty) {
+      summary.add("${filters.conditions.length} conditions");
+    }
+
+    // Countries
+    if (filters.countries.isNotEmpty) {
+      summary.add("${filters.countries.length} countries");
+    }
+
+    return summary.isEmpty ? "None" : summary.join(", ");
   }
 }

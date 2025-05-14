@@ -1,27 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:skincare/view/widget/product_card.dart';
 import 'package:skincare/models/product.dart';
 import '../items_detail.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:skincare/view/widget/product_card.dart';
-import 'package:skincare/models/product.dart';
-import '../items_detail.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:skincare/models/filter_selection.dart';
+import 'package:skincare/services/api_service.dart';
 
 class ProductGrid extends StatefulWidget {
-  final String selectedCategory;
-  final String searchQuery;
+  final List<Product> products;
+  final bool showLoading;
 
   const ProductGrid({
     Key? key,
-    required this.selectedCategory,
-    required this.searchQuery,
+    required this.products,
+    this.showLoading = false,
   }) : super(key: key);
 
   @override
@@ -29,18 +22,11 @@ class ProductGrid extends StatefulWidget {
 }
 
 class _ProductGridState extends State<ProductGrid> {
-  List<Product> products = [];
-  bool isLoading = false;
-  bool isInitialLoad = true;
-  bool hasMore = true;
-  int page = 1;
-  final int pageSize = 10;
   final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    fetchProducts();
     _scrollController.addListener(_scrollListener);
   }
 
@@ -51,128 +37,89 @@ class _ProductGridState extends State<ProductGrid> {
   }
 
   void _scrollListener() {
+    // Check if we're near the bottom of the scroll view
     if (_scrollController.position.pixels >=
-            _scrollController.position.maxScrollExtent - 50 &&
-        !isLoading &&
-        hasMore) {
-      fetchProducts();
-    }
-  }
-
-  Future<void> fetchProducts() async {
-    if (isLoading || !hasMore) return;
-
-    setState(() {
-      isLoading = true;
-    });
-
-    try {
-      // Add pagination param to search endpoint
-      final Uri uri = widget.searchQuery.isNotEmpty
-          ? Uri.parse(
-              'http://10.0.2.2:8000/products/search?q=${Uri.encodeComponent(widget.searchQuery)}&sort_by=rating&order=desc&page=$page&per_page=$pageSize')
-          : Uri.parse(
-              'http://10.0.2.2:8000/products/?page=$page&per_page=$pageSize');
-
-      final response = await http.get(uri);
-
-      if (response.statusCode == 200) {
-        final decoded = json.decode(response.body);
-        final List<dynamic> data = decoded['products'];
-        final int totalItems = decoded['total'];
-        final List<Product> fetchedProducts =
-            data.map((json) => Product.fromJson(json)).toList();
-
-        setState(() {
-          // Append fetched products to the list
-          if (page == 1) {
-            products = fetchedProducts;
-          } else {
-            final newProducts = fetchedProducts.where((newProduct) {
-              return !products.any(
-                  (existingProduct) => existingProduct.id == newProduct.id);
-            }).toList();
-            products.addAll(newProducts);
-          }
-
-          // Update pagination state based on total count
-          hasMore = products.length < totalItems;
-          if (hasMore) {
-            page++;
-          }
-        });
-      } else {
-        throw Exception('Failed to load products');
-      }
-    } catch (e) {
-      print('Error fetching products: $e');
-    } finally {
-      setState(() {
-        isLoading = false;
-        isInitialLoad = false;
-      });
-    }
-  }
-
-  @override
-  void didUpdateWidget(ProductGrid oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.selectedCategory != widget.selectedCategory ||
-        oldWidget.searchQuery != widget.searchQuery) {
-      setState(() {
-        products.clear();
-        page = 1;
-        hasMore = true;
-        isInitialLoad = true;
-      });
-      fetchProducts();
+        _scrollController.position.maxScrollExtent - 50) {
+      // Notify parent to load more products if needed
+      // This could be implemented with a callback passed to the widget
+      // For now, we'll rely on the parent handling pagination
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (isInitialLoad && products.isEmpty) {
-      return Center(child: CircularProgressIndicator());
+    if (widget.showLoading && widget.products.isEmpty) {
+      return Center(
+          child: CircularProgressIndicator(
+        strokeWidth: 4,
+        color: Colors.black,
+      ));
     }
 
-    // Use products directly if searchQuery was used to hit /search
-    final displayProducts = widget.searchQuery.isNotEmpty
-        ? products
-        : products.where((product) {
-            final query = widget.searchQuery.toLowerCase();
-            return product.name.toLowerCase().contains(query) ||
-                product.brand.toLowerCase().contains(query) ||
-                (product.type?.toLowerCase() ?? '').contains(query) ||
-                product.category.toLowerCase().contains(query);
-          }).toList();
+    if (!widget.showLoading && widget.products.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.search_off, size: 64, color: Colors.grey),
+            SizedBox(height: 16),
+            Text(
+              'No products found',
+              style: TextStyle(fontSize: 18, color: Colors.grey),
+            ),
+          ],
+        ),
+      );
+    }
 
-    return GridView.builder(
+    return ListView(
       controller: _scrollController,
-      padding: EdgeInsets.all(16),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
-        childAspectRatio: 0.7,
-      ),
-      itemCount: displayProducts.length,
-      itemBuilder: (context, index) {
-        final product = displayProducts[index];
-        return GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ItemsDetail(
-                  productId: product.id,
-                  product: product,
-                ),
-              ),
+      children: [
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: EdgeInsets.all(16),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 8,
+            mainAxisSpacing: 8,
+            childAspectRatio: 0.7,
+          ),
+          itemCount: widget.products.length,
+          itemBuilder: (context, index) {
+            final product = widget.products[index];
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ItemsDetail(
+                      productId: product.id,
+                      product: product,
+                    ),
+                  ),
+                );
+              },
+              child: ProductCard(product: product),
             );
           },
-          child: ProductCard(product: product),
-        );
-      },
+        ),
+        // Loading indicator that scrolls with content
+        if (widget.showLoading)
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: const Center(
+              child: SizedBox(
+                width: 32,
+                height: 32,
+                child: CircularProgressIndicator(
+                  strokeWidth: 4,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }
