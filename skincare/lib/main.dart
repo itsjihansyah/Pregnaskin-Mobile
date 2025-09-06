@@ -7,11 +7,8 @@ import 'models/product.dart';
 
 void main() {
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    statusBarColor: Colors.white,
-    systemNavigationBarColor: Colors.white,
-    systemNavigationBarIconBrightness: Brightness.dark,
-    statusBarIconBrightness: Brightness.dark,
-  ));
+      // statusBarColor: Colors.white,
+      systemNavigationBarColor: Colors.white));
   runApp(const MyApp());
 }
 
@@ -38,9 +35,21 @@ class MyApp extends StatelessWidget {
         ),
       ),
       home: AppMainScreen(),
+      // home: ItemsDetail(product: products[1]),
     );
   }
 }
+
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       debugShowCheckedModeBanner: false,
+//       theme: ThemeData(
+//         fontFamily: 'Inter', // Set Inter as the default font
+//       ),
+//       home: AppMainScreen(),
+//     );
+//   }
+// }
 
 ThemeData _buildTheme(brightness) {
   var baseTheme = ThemeData(brightness: brightness);

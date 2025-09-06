@@ -18,20 +18,20 @@ class AlternativeCard extends StatelessWidget {
         maxWidth: screenWidth * 0.9,
       ),
       decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(12)),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12)
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Stack(
             children: [
-              AspectRatio(
-                aspectRatio: 4 / 3,
+              AspectRatio(aspectRatio: 4/3,
                 child: ClipRRect(
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(12),
                   ),
-                  child: Image.network(
-                    alternativeProduct.imageUrl,
+                  child: Image.network(alternativeProduct.imageUrl,
                     width: double.infinity,
                     height: double.infinity,
                     fit: BoxFit.fitHeight,
@@ -39,13 +39,13 @@ class AlternativeCard extends StatelessWidget {
                 ),
               ),
 
-              // Match percentage button
+              // Safe button
               Positioned(
                 right: 8,
                 top: 2,
                 child: Chip(
                   label: Text(
-                    '${alternativeProduct.matchPercentage.toString()}% Match',
+                    alternativeProduct.matchPercentage.toString(),
                     style: AppTextStyle.withColor(
                       AppTextStyle.bodySmall,
                       Colors.white,
@@ -58,8 +58,7 @@ class AlternativeCard extends StatelessWidget {
                   side: const BorderSide(
                     color: Colors.transparent,
                   ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
               ),
@@ -68,25 +67,19 @@ class AlternativeCard extends StatelessWidget {
 
           // product details
           Padding(
-            padding: EdgeInsets.all(
-              screenWidth * 0.02,
-            ),
+            padding: EdgeInsets.all(screenWidth * 0.02,),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   alternativeProduct.brand,
-                  style: AppTextStyle.withColor(
-                      AppTextStyle.bodySmall, Color(0xFF979AAC)),
+                  style: AppTextStyle.withColor(AppTextStyle.bodySmall, Color(0xFF979AAC)),
                   maxLines: 1,
                 ),
-                SizedBox(height: screenWidth * 0.01),
+                SizedBox(height: screenWidth*0.01),
                 Text(
                   alternativeProduct.name,
-                  style: AppTextStyle.withColor(
-                      AppTextStyle.withWeight(
-                          AppTextStyle.bodyLarge, FontWeight.w600),
-                      Colors.black),
+                  style: AppTextStyle.withColor(AppTextStyle.withWeight(AppTextStyle.bodyLarge, FontWeight.w600), Colors.black),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -95,26 +88,17 @@ class AlternativeCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Icon(
-                          Icons.star,
-                          color: Color(0xFF979AAC),
-                          size: 16,
-                        ),
+                        Icon(Icons.star, color: Color(0xFF979AAC), size: 16,),
                         Padding(padding: EdgeInsets.only(left: 4)),
-                        Text(alternativeProduct.rating.toStringAsFixed(1),
-                            style: AppTextStyle.withColor(
-                                AppTextStyle.bodySmall, Color(0xFF979AAC))),
+                        Text(alternativeProduct.rating.toStringAsFixed(1), style: AppTextStyle.withColor(AppTextStyle.bodySmall, Color(0xFF979AAC))),
                       ],
                     ),
                     SizedBox(width: screenWidth * 0.02, height: 0),
                     Row(
                       children: [
-                        Icon(FontAwesomeIcons.earthAsia,
-                            color: Color(0xFF979AAC), size: 12),
+                        Icon(FontAwesomeIcons.earthAsia, color: Color(0xFF979AAC), size: 12),
                         Padding(padding: EdgeInsets.only(left: 4)),
-                        Text(alternativeProduct.country,
-                            style: AppTextStyle.withColor(
-                                AppTextStyle.bodySmall, Color(0xFF979AAC))),
+                        Text(alternativeProduct.country, style: AppTextStyle.withColor(AppTextStyle.bodySmall, Color(0xFF979AAC))),
                       ],
                     )
                   ],

@@ -1,7 +1,8 @@
-import 'package:skincare/models/product.dart';
-
-class AlternativeProduct extends Product {
+class AlternativeProduct {
+  final String brand;
+  final String name;
   final String safe;
+  final double confidence;
   final String category;
   final String type;
   final double rating;
@@ -11,30 +12,14 @@ class AlternativeProduct extends Product {
   final bool isFavorite;
   final String description;
   final String ingredients;
-  final int matchPercentage;
-  final int matchIngredients;
-  final String? pregnancy_condition;
-  final bool? hyperpigmentation;
-  final bool? pih;
-  final bool? acne;
-  final bool? stretch_marks;
-  final bool? melasma;
-  final bool? dry_skin;
-  final bool? oily_skin;
-  final bool? sensitive_skin;
-  final String? image_url;
-  final String? good_for;
-  final String? benefits;
-  final String? concern;
-  final String? included_features;
-  final String? excluded_features;
-  final String? unsafe_reason;
+  final double matchPercentage;
+  final double matchIngredients;
 
-  AlternativeProduct({
-    required int id,
-    required String brand,
-    required String name,
+  const AlternativeProduct ({
+    required this.brand,
+    required this.name,
     required this.safe,
+    required this.confidence,
     required this.category,
     required this.type,
     required this.rating,
@@ -45,106 +30,15 @@ class AlternativeProduct extends Product {
     required this.description,
     required this.ingredients,
     required this.matchPercentage,
-    required this.matchIngredients,
-    this.pregnancy_condition,
-    this.hyperpigmentation,
-    this.pih,
-    this.acne,
-    this.stretch_marks,
-    this.melasma,
-    this.dry_skin,
-    this.oily_skin,
-    this.sensitive_skin,
-    this.image_url,
-    this.good_for,
-    this.benefits,
-    this.concern,
-    this.included_features,
-    this.excluded_features,
-    this.unsafe_reason,
-  }) : super(id: id, brand: brand, name: name, category: category);
-
-  factory AlternativeProduct.fromJson(Map<String, dynamic> json) {
-    return AlternativeProduct(
-      id: json['id'] ?? 0,
-      brand: json['brand'] ?? '',
-      name: json['name'] ?? '',
-      safe: json['safe'] ?? '',
-      category: json['category'] ?? '',
-      type: json['type'] ?? '',
-      rating: (json['rating'] ?? 0).toDouble(),
-      country: json['country'] ?? '',
-      feature: json['included_features'] ?? '',
-      imageUrl: json['image_url'] ?? '',
-      isFavorite: json['is_favorite'] ?? false,
-      description: json['benefits'] ?? '',
-      ingredients: json['ingredients'] ?? '',
-      matchPercentage: json['similarity_score'] == null
-          ? 0
-          : (json['similarity_score'] is double)
-              ? json['similarity_score'].round()
-              : (json['similarity_score'] is int)
-                  ? json['similarity_score']
-                  : double.tryParse(json['similarity_score'].toString())
-                          ?.round() ??
-                      0,
-      matchIngredients: json['match_ingredient_count'] == null
-          ? 0
-          : (json['match_ingredient_count'] is int)
-              ? json['match_ingredient_count']
-              : (json['match_ingredient_count'] is double)
-                  ? json['match_ingredient_count'].round()
-                  : int.tryParse(json['match_ingredient_count'].toString()) ??
-                      0,
-      pregnancy_condition: json['pregnancy_condition'],
-      hyperpigmentation: json['hyperpigmentation'],
-      pih: json['pih'],
-      acne: json['acne'],
-      stretch_marks: json['stretch_marks'],
-      melasma: json['melasma'],
-      dry_skin: json['dry_skin'],
-      oily_skin: json['oily_skin'],
-      sensitive_skin: json['sensitive_skin'],
-      image_url: json['image_url'],
-      good_for: json['good_for'],
-      benefits: json['benefits'],
-      concern: json['concern'],
-      included_features: json['included_features'],
-      excluded_features: json['excluded_features'],
-      unsafe_reason: json['unsafe_reason'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'brand': brand,
-      'name': name,
-      'safe': safe,
-      'category': category,
-      'type': type,
-      'rating': rating,
-      'country': country,
-      'included_features': feature,
-      'image_url': imageUrl,
-      'is_favorite': isFavorite,
-      'benefits': description,
-      'ingredients': ingredients,
-      'similarity_score': matchPercentage,
-      'match_ingredient_count': matchIngredients,
-      'pregnancy_condition': pregnancy_condition,
-      'hyperpigmentation': hyperpigmentation,
-      'pih': pih,
-      'acne': acne,
-      'stretch_marks': stretch_marks,
-      'melasma': melasma,
-      'dry_skin': dry_skin,
-      'oily_skin': oily_skin,
-      'sensitive_skin': sensitive_skin,
-      'good_for': good_for,
-      'concern': concern,
-      'excluded_features': excluded_features,
-      'unsafe_reason': unsafe_reason,
-    };
-  }
+    required this.matchIngredients
+  });
 }
+
+final List<AlternativeProduct> products = [
+  AlternativeProduct(brand: 'Carasun', name: 'Solar Smart UV Light Sunscreen SPF 50+', safe: 'Safe', confidence: 100, category: 'Sunscreen', type: 'Sunscreen', rating: 4.8, country: 'Indonesian', feature: 'Silicon-free', imageUrl: 'https://skinsort.com/rails/active_storage/representations/proxy/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBK3M3RlE9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--5b0ee79853ebfe671f08134d1b3f3f5ad891ab2f/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdDRG9MWm05eWJXRjBPZ2wzWldKd09oUnlaWE5wZW1WZmRHOWZiR2x0YVhSYkIya0M2QU5wQXVnRE9ncHpZWFpsY25zR09neHhkV0ZzYVhSNWFVcz0iLCJleHAiOm51bGwsInB1ciI6InZhcmlhdGlvbiJ9fQ==--de5ec8f4d87208741dc6d32ada91b5aaba79d3a6/77a510b6-99e4-4956-8dab-1f1cab523f37-image-0-1722331791052.png', description: 'A popular vegan and cruelty-free eye moisturizer that contains ceramides, exfoliants, hyaluronic acid, niacinamide, peptides, retinoid and vitamin e.', ingredients: '', matchIngredients: 10.0, matchPercentage: 86.3),
+  AlternativeProduct(brand: 'Anua', name: 'Heartleaf Pore Control Cleansing Oil', safe: 'Unsafe', confidence: 100, category: 'Cleansers', type: 'Makeup Remover', rating: 4.5, country: 'Korean', feature: 'Hydrating, Redness reducing, Anti-aging, Scar healing, Brightening', imageUrl: 'https://skinsort.com/rails/active_storage/representations/proxy/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBeENpQnc9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--d146575c4b957c7336222b2764594ad286aa7fe2/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdDRG9MWm05eWJXRjBPZ2wzWldKd09oUnlaWE5wZW1WZmRHOWZiR2x0YVhSYkIya0M5QUZwQXZRQk9ncHpZWFpsY25zR09neHhkV0ZzYVhSNWFVcz0iLCJleHAiOm51bGwsInB1ciI6InZhcmlhdGlvbiJ9fQ==--b72940ad2f828f564888ecdc27fe23650eed6efb/Screen%20Shot%202023-05-14%20at%203.38.30%20AM.jpg', description: 'A popular vegan and cruelty-free eye moisturizer that contains ceramides, exfoliants, hyaluronic acid, niacinamide, peptides, retinoid and vitamin e.', ingredients: 'Ethylhexyl Palmitate, Sorbeth-30 Tetraoleate, Sorbitan Sesquioleate, Caprylic/Capric Triglyceride, Butyl Avocadate, Parfum, Helianthus Annuus Seed Oil, Macadamia Ternifolia Seed Oil, Olea Europaea Fruit Oil, Simmondsia Chinensis Seed Oil, Vitis Vinifera Seed Oil, Caprylyl Glycol, Ethylhexylglycerin, Curcuma Longa Root Extract, Melia Azadirachta Flower Extract, Tocopherol, Melia Azadirachta Leaf Extract, Houttuynia Cordata Extract, Corallina Officinalis Extract, Melia Azadirachta Bark Extract, Moringa Oleifera Seed Oil, Ocimum Sanctum Leaf Extract', matchIngredients: 10.0, matchPercentage: 86.3),
+  AlternativeProduct(brand: 'SKIN1004', name: 'Madagascar Centella Ampoule', safe: 'Safe', confidence: 100, category: 'Treatments', type: 'Serum', rating: 4.5, country: 'Korean', feature: 'Silicon-free', imageUrl: 'https://skinsort.com/rails/active_storage/representations/proxy/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBeUpFRmc9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--dfcb509ae12a19ccfdbd36eded8b3f75bf4e146d/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdDRG9MWm05eWJXRjBPZ2wzWldKd09oUnlaWE5wZW1WZmRHOWZiR2x0YVhSYkIya0M2QU5wQXVnRE9ncHpZWFpsY25zR09neHhkV0ZzYVhSNWFVcz0iLCJleHAiOm51bGwsInB1ciI6InZhcmlhdGlvbiJ9fQ==--de5ec8f4d87208741dc6d32ada91b5aaba79d3a6/414jDIUrXEL._SL1000_.jpg', description: 'A popular vegan and cruelty-free eye moisturizer that contains ceramides, exfoliants, hyaluronic acid, niacinamide, peptides, retinoid and vitamin e.', ingredients: '', matchIngredients: 10.0, matchPercentage: 86.3),
+  AlternativeProduct(brand: 'Kiehls', name: 'Age Defender Power Serum', safe: 'Unsafe', confidence: 100, category: 'Treatments', type: 'Serum', rating: 4.2, country: 'American', feature: 'Silicon-free', imageUrl: 'https://skinsort.com/rails/active_storage/representations/proxy/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbTRWIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--166cf9f384376a1ef3d35e07258c113112e62498/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdDRG9MWm05eWJXRjBPZ2wzWldKd09oUnlaWE5wZW1WZmRHOWZiR2x0YVhSYkIya0M2QU5wQXVnRE9ncHpZWFpsY25zR09neHhkV0ZzYVhSNWFVcz0iLCJleHAiOm51bGwsInB1ciI6InZhcmlhdGlvbiJ9fQ==--de5ec8f4d87208741dc6d32ada91b5aaba79d3a6/AgeDefender_PowerSerum_75ml.jpg', description: 'A popular vegan and cruelty-free eye moisturizer that contains ceramides, exfoliants, hyaluronic acid, niacinamide, peptides, retinoid and vitamin e.', ingredients: '', matchIngredients: 10.0, matchPercentage: 86.3),
+  AlternativeProduct(brand: 'Dr. Althea', name: '345 Relief Cream', safe: 'Safe', confidence: 100, category: 'Moisturizer', type: 'General Moisturizer', rating: 4.1, country: 'Korean', feature: 'Silicon-free', imageUrl: 'https://skinsort.com/rails/active_storage/representations/proxy/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBK05jRHc9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--4788046ec6246a5729ac776a07e8975d1e34770c/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdDRG9MWm05eWJXRjBPZ2wzWldKd09oUnlaWE5wZW1WZmRHOWZiR2x0YVhSYkIya0M2QU5wQXVnRE9ncHpZWFpsY25zR09neHhkV0ZzYVhSNWFVcz0iLCJleHAiOm51bGwsInB1ciI6InZhcmlhdGlvbiJ9fQ==--de5ec8f4d87208741dc6d32ada91b5aaba79d3a6/61YYw3WIQPL._SL1080_.jpg', description: 'A popular vegan and cruelty-free eye moisturizer that contains ceramides, exfoliants, hyaluronic acid, niacinamide, peptides, retinoid and vitamin e.', ingredients: '', matchIngredients: 10.0, matchPercentage: 86.3),
+  AlternativeProduct(brand: 'Beauty of Joseon', name: 'Revive Eye Serum: Ginseng + Retinal', safe: 'Safe', confidence: 100, category: 'Treatments', type: 'Serum', rating: 4.4, country: 'Korean', feature: 'Silicon-free', imageUrl: 'https://skinsort.com/rails/active_storage/representations/proxy/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBdzJGQWc9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--dff31d0439216c1ce73de3030831f979437ff032/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdDRG9MWm05eWJXRjBPZ2wzWldKd09oUnlaWE5wZW1WZmRHOWZiR2x0YVhSYkIya0M2QU5wQXVnRE9ncHpZWFpsY25zR09neHhkV0ZzYVhSNWFVcz0iLCJleHAiOm51bGwsInB1ciI6InZhcmlhdGlvbiJ9fQ==--de5ec8f4d87208741dc6d32ada91b5aaba79d3a6/41mZhsjqUlL._SY355_.jpg', description: 'A popular vegan and cruelty-free eye moisturizer that contains ceramides, exfoliants, hyaluronic acid, niacinamide, peptides, retinoid and vitamin e.', ingredients: '', matchIngredients: 10.0, matchPercentage: 86.3)
+];

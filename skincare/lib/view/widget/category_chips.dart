@@ -3,21 +3,15 @@ import 'package:skincare/utils/app_textstyles.dart';
 
 class CategoryChips extends StatefulWidget {
   final List<String> categories;
-  final String selectedCategory;
-  final Function(String) onCategorySelected;
-
-  const CategoryChips({
-    super.key,
-    required this.categories,
-    required this.selectedCategory,
-    required this.onCategorySelected,
-  });
+  const CategoryChips({super.key, required this.categories});
 
   @override
   State<CategoryChips> createState() => _CategoryChipsState();
 }
 
 class _CategoryChipsState extends State<CategoryChips> {
+  int selectedIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -26,30 +20,26 @@ class _CategoryChipsState extends State<CategoryChips> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: List.generate(
           widget.categories.length,
-          (index) => Expanded(
+              (index) => Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: ChoiceChip(
                 label: Center(
                   child: Text(
-                    widget.categories[index],
+                    widget.categories[index], // Use widget.categories instead
                     style: AppTextStyle.withColor(
-                      widget.selectedCategory == widget.categories[index]
-                          ? AppTextStyle.withWeight(
-                              AppTextStyle.bodySmall, FontWeight.w600)
+                      selectedIndex == index
+                          ? AppTextStyle.withWeight(AppTextStyle.bodySmall, FontWeight.w600)
                           : AppTextStyle.bodySmall,
-                      widget.selectedCategory == widget.categories[index]
-                          ? Colors.white
-                          : Colors.black,
+                      selectedIndex == index ? Colors.white : Colors.black,
                     ),
                   ),
                 ),
-                selected: widget.selectedCategory == widget.categories[index],
+                selected: selectedIndex == index,
                 onSelected: (bool selected) {
-                  if (selected) {
-                    widget.onCategorySelected(
-                        widget.categories[index]); // Notify parent
-                  }
+                  setState(() {
+                    selectedIndex = selected ? index : selectedIndex;
+                  });
                 },
                 selectedColor: Colors.black,
                 backgroundColor: const Color(0xFFFAFAFA),

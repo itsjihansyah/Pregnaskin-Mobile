@@ -168,13 +168,13 @@ def vectorize():
     result = conn.execute(query).fetchall()
 
     if not result:
-        return [], np.array([])  # Return empty if no products
+        return [], np.array([])
 
-    result = conn.execute(query)  # Run query
-    rows = result.fetchall()  # Fetch all results
+    result = conn.execute(query)
+    rows = result.fetchall()
 
     # Convert rows properly
-    product_data = [dict(row._mapping) for row in rows]  # ✅ Safe conversion
+    product_data = [dict(row._mapping) for row in rows]
     
     # Process text features
     for p in product_data:
@@ -246,7 +246,6 @@ def similar(
     # Apply pre-filters to product data before computing similarities
     filtered_product_indices = []
     for idx, product in enumerate(product_data):
-        # Skip the query product itself
         if product["id"] == query_id:
             continue
             
@@ -290,18 +289,15 @@ def similar(
         if not concern_match:
             continue
             
-        # Apply additional custom filters if needed
-        # For example: brand filter, rating filter, etc.
+        # Apply rating, brand filters
         if "min_rating" in filters and product["rating"] < filters["min_rating"]:
             continue
         
         if "brands" in filters and filters["brands"] and product["brand"] not in filters["brands"]:
             continue
 
-        # If product passed all filters, add its index to the filtered list
         filtered_product_indices.append(idx)
     
-    # If no products match the filters, return empty results
     if not filtered_product_indices:
         return [], []
     
@@ -314,7 +310,7 @@ def similar(
         for i, idx in enumerate(filtered_product_indices)
     ]
     
-    # Sort by similarity score (descending)
+    # Sort by similarity score (desc)
     product_similarity_pairs.sort(key=lambda x: x[1], reverse=True)
     
     # Pagination
@@ -322,7 +318,6 @@ def similar(
     end_idx = start_idx + per_page
     paginated_products = product_similarity_pairs[start_idx:end_idx]
 
-    # Prepare the paginated result
     paginated_json = [
         {
             "id": p["id"],

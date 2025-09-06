@@ -2,24 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:skincare/utils/app_textstyles.dart';
 
 class FilterChips extends StatefulWidget {
-  final List<String> filter;
-  final Set<String> selectedFilters;
-  final Function(String) onFilterSelected;
-  final Function(String) onFilterUnselected;
+  final List<String> filter; // Accepts any filter type dynamically
 
-  const FilterChips({
-    super.key,
-    required this.filter,
-    required this.selectedFilters,
-    required this.onFilterSelected,
-    required this.onFilterUnselected,
-  });
+  const FilterChips({super.key, required this.filter});
 
   @override
   State<FilterChips> createState() => _FilterChipsState();
 }
 
 class _FilterChipsState extends State<FilterChips> {
+  final Set<int> selectedIndices = {}; // Store multiple selected indices
+
   @override
   Widget build(BuildContext context) {
     return Wrap(
@@ -27,41 +20,37 @@ class _FilterChipsState extends State<FilterChips> {
       runSpacing: 8,
       children: List.generate(
         widget.filter.length,
-        (index) {
-          final filterValue = widget.filter[index];
-          final isSelected = widget.selectedFilters.contains(filterValue);
-
-          return ChoiceChip(
-            label: Text(
-              filterValue,
-              style: AppTextStyle.withColor(
-                isSelected
-                    ? AppTextStyle.withWeight(
-                        AppTextStyle.bodyMedium, FontWeight.w600)
-                    : AppTextStyle.bodyMedium,
-                isSelected ? Colors.white : Colors.black,
-              ),
+            (index) => ChoiceChip(
+          label: Text(
+            widget.filter[index],
+            style: AppTextStyle.withColor(
+              selectedIndices.contains(index)
+                  ? AppTextStyle.withWeight(AppTextStyle.bodyMedium, FontWeight.w600)
+                  : AppTextStyle.bodyMedium,
+              selectedIndices.contains(index) ? Colors.white : Colors.black,
             ),
-            selected: isSelected,
-            onSelected: (bool selected) {
+          ),
+          selected: selectedIndices.contains(index),
+          onSelected: (bool selected) {
+            setState(() {
               if (selected) {
-                widget.onFilterSelected(filterValue);
+                selectedIndices.add(index);
               } else {
-                widget.onFilterUnselected(filterValue);
+                selectedIndices.remove(index);
               }
-            },
-            selectedColor: Colors.black,
-            backgroundColor: const Color(0xFFFAFAFA),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            side: const BorderSide(
-              color: Colors.transparent,
-            ),
-          );
-        },
+            });
+          },
+          selectedColor: Colors.black,
+          backgroundColor: const Color(0xFFFAFAFA),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          side: const BorderSide(
+            color: Colors.transparent,
+          ),
+        ),
       ),
     );
   }

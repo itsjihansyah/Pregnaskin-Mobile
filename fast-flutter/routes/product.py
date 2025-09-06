@@ -113,7 +113,7 @@ def get_similar_products(product_id: int, page: int = 1, per_page: int = 20):
     return {
         "page": page,
         "per_page": per_page,
-        "total": len(safe_products),  # <-- total is full safe list
+        "total": len(safe_products),
         "products": paginated_products
     }
 
